@@ -12,6 +12,8 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ScheduledFuture;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +23,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Sharable
 public abstract class MessageReceiveHandler extends AbstractBusinessHandler {
-	private static final Logger logger = LoggerFactory.getLogger(MessageReceiveHandler.class);
+	private static final InternalLogger logger = InternalLoggerFactory.getInstance(MessageReceiveHandler.class);
 	private int rate = 10;
 
 	private AtomicLong cnt = new AtomicLong();

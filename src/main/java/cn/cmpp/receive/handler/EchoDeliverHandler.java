@@ -12,10 +12,15 @@ import com.zx.sms.common.util.MsgId;
 import com.zx.sms.handler.api.AbstractBusinessHandler;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.apache.commons.lang3.StringUtils;
 
 @Sharable
 public class EchoDeliverHandler extends AbstractBusinessHandler {
+
+
+	private static final InternalLogger logger = InternalLoggerFactory.getInstance(EchoDeliverHandler.class);
 
 	@Override
 	public String name() {

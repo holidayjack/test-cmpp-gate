@@ -21,12 +21,16 @@ import com.zx.sms.connect.manager.smpp.SMPPServerEndpointEntity;
 import com.zx.sms.handler.api.AbstractBusinessHandler;
 import com.zx.sms.handler.api.BusinessHandlerInterface;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class LoadServerUtil {
+
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(LoadServerUtil.class);
 
     public static final EchoDeliverHandler echoDeliverHandler = new EchoDeliverHandler();
     public static final CMPPMessageReceiveHandler cmppMessageReceiveHandler = new CMPPMessageReceiveHandler();

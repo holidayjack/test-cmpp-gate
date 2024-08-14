@@ -1,6 +1,9 @@
 package cn.cmpp.receive;
 
+import cn.cmpp.receive.handler.CMPPMessageReceiveHandler;
 import com.zx.sms.connect.manager.EndpointManager;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +12,7 @@ import java.util.List;
 
 public class CmppReceiveMain {
 
-    private static final Logger logger = LoggerFactory.getLogger(CmppReceiveMain.class);
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(CmppReceiveMain.class);
 
     private static LoadServerUtil loadServerUtil = new LoadServerUtil();
 

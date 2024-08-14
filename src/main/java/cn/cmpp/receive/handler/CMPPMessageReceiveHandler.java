@@ -4,15 +4,19 @@ import com.zx.sms.codec.cmpp.msg.*;
 import com.zx.sms.common.util.CachedMillisecondClock;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.apache.commons.lang3.time.DateFormatUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class CMPPMessageReceiveHandler extends MessageReceiveHandler {
 
 	@Override
 	protected ChannelFuture reponse(final ChannelHandlerContext ctx, Object msg) {
+
 		if (msg instanceof CmppDeliverRequestMessage) {
 			CmppDeliverRequestMessage e = (CmppDeliverRequestMessage) msg;
 			
@@ -32,9 +36,9 @@ public class CMPPMessageReceiveHandler extends MessageReceiveHandler {
 			
 			ChannelFuture future = ctx.channel().writeAndFlush(resp);
 			
-			//回复状态报告
+//			//回复状态报告
 			if(e.getRegisteredDelivery()==1) {
-				
+
 				final CmppDeliverRequestMessage deliver = new CmppDeliverRequestMessage();
 				deliver.setDestId(e.getSrcId());
 				deliver.setSrcterminalId(e.getDestterminalId()[0]);
@@ -48,7 +52,7 @@ public class CMPPMessageReceiveHandler extends MessageReceiveHandler {
 				report.setSmscSequence(0);
 				deliver.setReportRequestMessage(report);
 				reportlist.add(deliver);
-				
+
 				ctx.executor().submit(new Runnable() {
 					public void run() {
 						for(CmppDeliverRequestMessage t : reportlist)
@@ -56,6 +60,7 @@ public class CMPPMessageReceiveHandler extends MessageReceiveHandler {
 					}
 				});
 			}
+
 			return  future ;
 		}
 		return null;
