@@ -1,29 +1,23 @@
 package cn.cmpp.receive;
 
+import cn.cmpp.receive.dto.CMPPServerEndpointEntityDto;
 import cn.cmpp.receive.handler.CMPPMessageReceiveHandler;
 import cn.cmpp.receive.handler.EchoDeliverHandler;
-import cn.hutool.core.convert.Convert;
+import com.zx.sms.codec.cmpp.msg.CmppDeliverRequestMessage;
+import com.zx.sms.codec.cmpp.msg.CmppReportRequestMessage;
 import com.zx.sms.common.GlobalConstance;
+import com.zx.sms.common.util.MsgId;
 import com.zx.sms.connect.manager.EndpointEntity;
 import com.zx.sms.connect.manager.ServerServerEndpoint;
-import com.zx.sms.connect.manager.cmpp.CMPPEndpointEntity;
-import com.zx.sms.connect.manager.cmpp.CMPPServerChildEndpointEntity;
 import com.zx.sms.connect.manager.cmpp.CMPPServerEndpointEntity;
-import com.zx.sms.connect.manager.sgip.SgipEndpointEntity;
-import com.zx.sms.connect.manager.sgip.SgipServerChildEndpointEntity;
-import com.zx.sms.connect.manager.sgip.SgipServerEndpointEntity;
-import com.zx.sms.connect.manager.smgp.SMGPEndpointEntity;
-import com.zx.sms.connect.manager.smgp.SMGPServerChildEndpointEntity;
-import com.zx.sms.connect.manager.smgp.SMGPServerEndpointEntity;
-import com.zx.sms.connect.manager.smpp.SMPPEndpointEntity;
-import com.zx.sms.connect.manager.smpp.SMPPServerChildEndpointEntity;
-import com.zx.sms.connect.manager.smpp.SMPPServerEndpointEntity;
 import com.zx.sms.handler.api.AbstractBusinessHandler;
 import com.zx.sms.handler.api.BusinessHandlerInterface;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import com.zx.sms.common.util.CachedMillisecondClock;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,8 +42,9 @@ public class LoadServerUtil {
         tmpSever.setPort(17890);
 
 
-        EndpointEntity tmp = new CMPPServerChildEndpointEntity();
-        buildCMPPEndpointEntity((CMPPEndpointEntity) tmp);
+        CMPPServerEndpointEntityDto tmp = new CMPPServerEndpointEntityDto();
+
+        buildCMPPEndpointEntity(tmp);
 
         tmp.setSupportLongmsg(EndpointEntity.SupportLongMessage.BOTH);
         tmp.setIdleTimeSec((short) 10);
@@ -60,7 +55,7 @@ public class LoadServerUtil {
         return result;
     }
 
-    private static void buildCMPPEndpointEntity(CMPPEndpointEntity tmp) {
+    private static void buildCMPPEndpointEntity(CMPPServerEndpointEntityDto tmp) {
         tmp.setId("cmpp-test");
         tmp.setValid(true);
         tmp.setUserName("test");
@@ -69,7 +64,19 @@ public class LoadServerUtil {
         tmp.setMaxChannels(Short.valueOf("200"));
         tmp.setReadLimit(200);
         addBusinessHandlerSet(tmp);
-
+//        tmp.setSupplier(()->{
+//            CmppDeliverRequestMessage deliver = new CmppDeliverRequestMessage();
+//            CmppReportRequestMessage report = new CmppReportRequestMessage();
+//            report.setDestterminalId("tel");
+//            report.setMsgId(new MsgId());
+//            String t = DateFormatUtils.format(CachedMillisecondClock.INS.now(), "yyMMddHHmm");
+//            report.setSubmitTime(t);
+//            report.setDoneTime(t);
+//            report.setStat("DELIVRD");
+//            report.setSmscSequence(0);
+//            deliver.setReportRequestMessage(report);
+//            return deliver;
+//        });
 
     }
 
@@ -82,7 +89,6 @@ public class LoadServerUtil {
 
 
         bizHandlers.add(echoDeliverHandler);
-
 
 
         if (!tmp.isValid())
