@@ -9,12 +9,19 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 public class CMPPMessageReceiveHandler extends MessageReceiveHandler {
+
+	private static final InternalLogger log = InternalLoggerFactory.getInstance(CMPPMessageReceiveHandler.class);
+
+	private static AtomicInteger count = new AtomicInteger();
 
 	@Override
 	protected ChannelFuture reponse(final ChannelHandlerContext ctx, Object msg) {
@@ -34,10 +41,14 @@ public class CMPPMessageReceiveHandler extends MessageReceiveHandler {
 			//接收到 CmppSubmitRequestMessage 消息
 			CmppSubmitRequestMessage e = (CmppSubmitRequestMessage) msg;
 
+			int i = count.incrementAndGet();
+			log.info("提交总量：{}",i);
 //			final List<CmppDeliverRequestMessage> reportlist = new ArrayList<CmppDeliverRequestMessage>();
 			
 			final CmppSubmitResponseMessage resp = new CmppSubmitResponseMessage(e.getHeader().getSequenceId());
+			resp.setMsgId(e.getMsgid());
 			resp.setResult(0);
+//			log.info("CmppSubmitRequestMessage:{}",e);
 			
 			ChannelFuture future = ctx.channel().writeAndFlush(resp);
 

@@ -2,6 +2,7 @@ package cn.cmpp.receive;
 
 import cn.cmpp.receive.handler.CMPPMessageReceiveHandler;
 import cn.unit.ChannelUtil;
+import com.chinamobile.cmos.sms.SmsDcs;
 import com.zx.sms.codec.cmpp.msg.CmppDeliverRequestMessage;
 import com.zx.sms.codec.cmpp.msg.CmppReportRequestMessage;
 import com.zx.sms.common.util.CachedMillisecondClock;
@@ -45,34 +46,63 @@ public class CmppReceiveMain {
         }
 
         //写入回执报告
-        new Thread(()->{
-            for (int i = 0; i < 10; i++) {
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException e1) {
-                    e1.printStackTrace();
-                }
-                EndpointEntity entity = EndpointManager.INS.getEndpointEntity("cmpp-test");
-                if (entity == null || !entity.isValid()) {
-                    logger.info("通道无效");
-                }else {
-                    CmppDeliverRequestMessage deliver = new CmppDeliverRequestMessage();
-                    CmppReportRequestMessage report = new CmppReportRequestMessage();
-                    report.setDestterminalId("tel");
-                    report.setMsgId(new MsgId());
-                    String t = DateFormatUtils.format(CachedMillisecondClock.INS.now(), "yyMMddHHmm");
-                    report.setSubmitTime(t);
-                    report.setDoneTime(t);
-                    report.setStat("DELIVRD");
-                    report.setSmscSequence(0);
-                    deliver.setReportRequestMessage(report);
-                    ChannelUtil.asyncWriteToEntity(entity,deliver);
-                }
+//        new Thread(()->{
+//            for (int i = 0; i < 10; i++) {
+//                try {
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e1) {
+//                    e1.printStackTrace();
+//                }
+//                EndpointEntity entity = EndpointManager.INS.getEndpointEntity("cmpp-test");
+//                if (entity == null || !entity.isValid()) {
+//                    logger.info("通道无效");
+//                }else {
+//                    CmppDeliverRequestMessage deliver = new CmppDeliverRequestMessage();
+//                    CmppReportRequestMessage report = new CmppReportRequestMessage();
+//                    report.setDestterminalId("tel");
+//                    report.setMsgId(new MsgId());
+//                    String t = DateFormatUtils.format(CachedMillisecondClock.INS.now(), "yyMMddHHmm");
+//                    report.setSubmitTime(t);
+//                    report.setDoneTime(t);
+//                    report.setStat("DELIVRD");
+//                    report.setSmscSequence(0);
+//                    deliver.setReportRequestMessage(report);
+//                    ChannelUtil.asyncWriteToEntity(entity,deliver);
+//                }
+//
+//            }
+//
+//
+//        }).start();
 
-            }
+
+        //写入上行报告
+//        new Thread(()->{
+//            while (true){
+//                try {
+//                    Thread.sleep(50);
+//                } catch (InterruptedException e1) {
+//                    e1.printStackTrace();
+//                }
+//                EndpointEntity entity = EndpointManager.INS.getEndpointEntity("cmpp-test");
+//                if (entity == null || !entity.isValid()) {
+//                    logger.info("通道无效");
+//                }else {
+//                    CmppDeliverRequestMessage deliver = new CmppDeliverRequestMessage();
+////                    deliver.setMsgId(new MsgId("1213163"));
+//                    deliver.setSrcterminalId("tel");
+//                    String content="cesi12ushauiuahsdiuahidfadfiafa";
+//                    deliver.setMsgLength(Short.valueOf(content.length()+""));
+//                    deliver.setMsgContent(content);
+//                    deliver.setTimestamp(System.currentTimeMillis());
+//                    deliver.setDestId("132132131321");
+//                    ChannelUtil.asyncWriteToEntity(entity,deliver);
+//                }
+//            }
+//        }).start();
 
 
-        }).start();
+
 
         try {
             System.in.read();

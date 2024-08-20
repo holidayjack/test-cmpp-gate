@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Sharable
@@ -44,6 +45,7 @@ public abstract class MessageReceiveHandler extends AbstractBusinessHandler {
 					long nowcnt = cnt.get();
 					EndpointConnector conn = EndpointManager.INS.getEndpointConnector(getEndpointEntity());
 
+					//提交速度
 					logger.info("entity:{},channels : {},Totle Receive Msg Num:{},   speed : {}/s",
 							getEndpointEntity().getId(), conn == null ? 0 : conn.getConnectionNum(), nowcnt,
 							(nowcnt - lastNum) / rate);
@@ -67,11 +69,10 @@ public abstract class MessageReceiveHandler extends AbstractBusinessHandler {
 	public void channelRead(final ChannelHandlerContext ctx, Object msg) throws Exception {
 
 //		int d = delay.delay();
-		int d = 1;
+		int d = 50;
 
 		if(d>0) {
 			ScheduledFuture future = ctx.executor().schedule(new Runnable() {
-
 				@Override
 				public void run() {
 					 reponse(ctx, msg);
