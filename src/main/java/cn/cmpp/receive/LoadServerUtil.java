@@ -62,7 +62,7 @@ public class LoadServerUtil {
         tmp.setPassword("123456");
         tmp.setVersion(Short.valueOf("32"));
         tmp.setMaxChannels(Short.valueOf("200"));
-        tmp.setReadLimit(200);
+        tmp.setReadLimit(1000);
         addBusinessHandlerSet(tmp);
 //        tmp.setSupplier(()->{
 //            CmppDeliverRequestMessage deliver = new CmppDeliverRequestMessage();
