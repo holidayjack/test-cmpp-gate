@@ -13,7 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
@@ -21,7 +23,7 @@ public class CMPPMessageReceiveHandler extends MessageReceiveHandler {
 
 	private static final InternalLogger log = InternalLoggerFactory.getInstance(CMPPMessageReceiveHandler.class);
 
-	private static AtomicInteger count = new AtomicInteger();
+	public static final ConcurrentHashMap<String,AtomicInteger> hashMap = new ConcurrentHashMap<>();
 
 	@Override
 	protected ChannelFuture reponse(final ChannelHandlerContext ctx, Object msg) {
@@ -40,9 +42,9 @@ public class CMPPMessageReceiveHandler extends MessageReceiveHandler {
 		}else if (msg instanceof CmppSubmitRequestMessage) {
 			//接收到 CmppSubmitRequestMessage 消息
 			CmppSubmitRequestMessage e = (CmppSubmitRequestMessage) msg;
-
-			int i = count.incrementAndGet();
-			log.info("提交总量：{}",i);
+			String entityId = e.getUniqueLongMsgId().getEntityId();
+			int i = hashMap.computeIfAbsent(entityId, k -> new AtomicInteger()).incrementAndGet();
+			log.info("通道:{},提交总量:{}",entityId,i);
 //			final List<CmppDeliverRequestMessage> reportlist = new ArrayList<CmppDeliverRequestMessage>();
 			
 			final CmppSubmitResponseMessage resp = new CmppSubmitResponseMessage(e.getHeader().getSequenceId());

@@ -1,5 +1,6 @@
 package cn.cmpp.receive.handler;
 
+import cn.hutool.json.JSONUtil;
 import com.zx.sms.BaseMessage;
 import com.zx.sms.connect.manager.EndpointConnector;
 import com.zx.sms.connect.manager.EndpointManager;
@@ -18,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -25,11 +27,16 @@ import java.util.concurrent.atomic.AtomicLong;
 @Sharable
 public abstract class MessageReceiveHandler extends AbstractBusinessHandler {
 	private static final InternalLogger logger = InternalLoggerFactory.getInstance(MessageReceiveHandler.class);
+	private static final Logger log = LoggerFactory.getLogger(MessageReceiveHandler.class);
 	private int rate = 10;
 
-	private AtomicLong cnt = new AtomicLong();
+
+	public static final ConcurrentHashMap<String,AtomicLong> hashMap = new ConcurrentHashMap<>();
+
+
 	private long lastNum = 0;
 	private volatile boolean inited = false;
+	private AtomicLong cnt = new AtomicLong(0);
 
 	@Override
 	public String name() {
@@ -44,12 +51,12 @@ public abstract class MessageReceiveHandler extends AbstractBusinessHandler {
 				public Boolean call() throws Exception {
 					long nowcnt = cnt.get();
 					EndpointConnector conn = EndpointManager.INS.getEndpointConnector(getEndpointEntity());
-
 					//提交速度
 					logger.info("entity:{},channels : {},Totle Receive Msg Num:{},   speed : {}/s",
 							getEndpointEntity().getId(), conn == null ? 0 : conn.getConnectionNum(), nowcnt,
 							(nowcnt - lastNum) / rate);
 					lastNum = nowcnt;
+
 					return true;
 				}
 			}, new ExitUnlimitCirclePolicy() {

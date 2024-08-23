@@ -3,6 +3,7 @@ package cn.cmpp.receive;
 import cn.cmpp.receive.dto.CMPPServerEndpointEntityDto;
 import cn.cmpp.receive.handler.CMPPMessageReceiveHandler;
 import cn.cmpp.receive.handler.EchoDeliverHandler;
+import com.google.common.collect.Lists;
 import com.zx.sms.codec.cmpp.msg.CmppDeliverRequestMessage;
 import com.zx.sms.codec.cmpp.msg.CmppReportRequestMessage;
 import com.zx.sms.common.GlobalConstance;
@@ -26,40 +27,38 @@ public class LoadServerUtil {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(LoadServerUtil.class);
 
+    public static final List<String> channelIdList = Lists.newArrayList("1", "2", "3", "4");
     public static final EchoDeliverHandler echoDeliverHandler = new EchoDeliverHandler();
-    public static final CMPPMessageReceiveHandler cmppMessageReceiveHandler = new CMPPMessageReceiveHandler();
+//    public static final CMPPMessageReceiveHandler cmppMessageReceiveHandler = new CMPPMessageReceiveHandler();
 
     // 从服务加载xml配置文件
     public List<EndpointEntity> loadServerEndpointEntity() {
         List<EndpointEntity> result = new ArrayList<EndpointEntity>();
 
-        EndpointEntity tmpSever = new CMPPServerEndpointEntity();
 
+        EndpointEntity tmpSever = new CMPPServerEndpointEntity();
         tmpSever.setId("id");
         tmpSever.setDesc("desc");
         tmpSever.setValid(true);
-        tmpSever.setHost( "0.0.0.0");
+        tmpSever.setHost("0.0.0.0");
         tmpSever.setPort(17890);
-
-
-        CMPPServerEndpointEntityDto tmp = new CMPPServerEndpointEntityDto();
-
-        buildCMPPEndpointEntity(tmp);
-
-        tmp.setSupportLongmsg(EndpointEntity.SupportLongMessage.BOTH);
-        tmp.setIdleTimeSec((short) 10);
-        tmp.setWindow(100);
-        ((ServerServerEndpoint) tmpSever).addchild(tmp);
-
+        for (int i = 0; i < channelIdList.size(); i++) {
+            CMPPServerEndpointEntityDto tmp = new CMPPServerEndpointEntityDto();
+            buildCMPPEndpointEntity(tmp, channelIdList.get(i));
+            tmp.setSupportLongmsg(EndpointEntity.SupportLongMessage.BOTH);
+            tmp.setIdleTimeSec((short) 10);
+            tmp.setWindow(100);
+            ((ServerServerEndpoint) tmpSever).addchild(tmp);
+        }
         result.add(tmpSever);
         return result;
     }
 
-    private static void buildCMPPEndpointEntity(CMPPServerEndpointEntityDto tmp) {
-        tmp.setId("cmpp-test");
+    private static void buildCMPPEndpointEntity(CMPPServerEndpointEntityDto tmp, String channelId) {
+        tmp.setId(channelId);
         tmp.setValid(true);
-        tmp.setUserName("test");
-        tmp.setPassword("123456");
+        tmp.setUserName("test" + channelId);
+        tmp.setPassword("123456" + channelId);
         tmp.setVersion(Short.valueOf("32"));
         tmp.setMaxChannels(Short.valueOf("200"));
         tmp.setReadLimit(1000);
@@ -87,19 +86,19 @@ public class LoadServerUtil {
         tmp.setBusinessHandlerSet(bizHandlers);
 
 
-
         bizHandlers.add(echoDeliverHandler);
 
 
         if (!tmp.isValid())
             return;
 
-        BusinessHandlerInterface handlerobj = cmppMessageReceiveHandler;
+        BusinessHandlerInterface handlerobj = new CMPPMessageReceiveHandler();
         if (handlerobj != null) {
             bizHandlers.add(new AbstractBusinessHandler() {
                 @Override
                 public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
-                    handlerobj.setEndpointEntity(getEndpointEntity());
+//                    handlerobj.setEndpointEntity(getEndpointEntity());
+                    handlerobj.setEndpointEntity(tmp);
                     ctx.pipeline().addAfter(GlobalConstance.sessionHandler, handlerobj.name(), handlerobj);
                     ctx.pipeline().remove(this);
                 }

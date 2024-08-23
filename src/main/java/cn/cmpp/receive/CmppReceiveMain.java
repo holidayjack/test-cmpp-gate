@@ -27,6 +27,7 @@ public class CmppReceiveMain {
     private static LoadServerUtil loadServerUtil = new LoadServerUtil();
 
 
+
     public static void main(String[] args) {
         final EndpointManager manager = EndpointManager.INS;
         List serverlist = loadServerUtil.loadServerEndpointEntity();// 服务终端实体类集合
